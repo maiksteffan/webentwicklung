@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin</title>
+</head>
+<body>
+<form>
+  <div class="formBox">
+    <input id="sid" placeholder="Student ID"/>
+  </div>
+  <div class="formBox">
+    <input id="fn" placeholder="First Name"/>
+  </div>
+  <div class="formBox">
+    <input id="ln" placeholder="Last Name"/>
+  </div>
+  <div class="formBox">
+    <input id="dob" placeholder="Date of Birth"/>
+  </div>
+  <div class="formBox">
+    <input id="gender" placeholder="Gender"/>
+  </div>
+  <div class="formBox">
+    <input id="dep" placeholder="Department"/>
+  </div>
+  <div class="formBox">
+    <input id="email" placeholder="E_Mail"/>
+  </div>
+  <div>
+    <button id="btn">Click to Add</button>
+  </div>
+  <div id="msg">
+    <pre></pre>
+  </div>
+</form>
+<script>
+  let students = [];
+  const addStudent = (event)=> {event.preventDefault(); //prevent page reloading
+    let student = {
+      studentid: document.getElementById('sid').value,
+      firstname: document.getElementById('fn').value,
+      lastname: document.getElementById('ln').value,
+      dateofbirth: document.getElementById('dob').value,
+      gender: document.getElementById('gender').value,
+      department: document.getElementById('dep').value,
+      email: document.getElementById('email').value
+    }
+    students.push(student);
+    document.forms[0].reset();
+
+    console.warn('added', {students});
+    let pre = document.querySelector('#msg pre');
+    pre.textContent = '\n' + JSON.stringify(students, '\t', 2);
+  }
+  document.getElementById('btn').addEventListener('click', addStudent);
+</script>
+
+</body>
+</html>

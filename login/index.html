@@ -18,7 +18,8 @@
                 <input class="form-control" id="userName" type="text" placeholder="username">
             </div>
             <div class="box2">
-                <input class="form-control" id="password" type="password" placeholder="password">
+                <input class="form-control" id="password" type="password" placeholder="password" onkeyup="check()">
+                <p id="strength"></p>
             </div>
             <div class="box3">
                 <input class="btn btn-primary"  id="submit" type="button" value="Submit" onClick="validate()">

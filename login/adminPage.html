@@ -2,9 +2,386 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>AdminPage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="adminStyle.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Admin Page</h1>
+    <script>
+        const STUDENTS = 0;
+        const STAFF = 1;
+        let chosen = STUDENTS;
+
+        function enableButtons(){
+            const targetButtons = document.getElementById("buttons");
+            targetButtons.style.display = "block";
+        }
+        function displayRadioValue() {
+            let ele = document.getElementsByName('gridRadios');
+            for(let i = 0; i < ele.length; i++) {
+                if(ele[i].checked)
+                    return ele[i].value;
+            }
+        }
+
+        let students = [];
+        function applyFilter(){
+            console.log("apply filter has been called");
+            let filtered = students.filter(student => student.semester === document.getElementById("semesterFilter").value);
+            displayStudents(filtered);
+        }
+
+        function openStudents(){
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const maxday = yesterday.toISOString().split('T')[0];
+            document.getElementsByName("dob")[0].setAttribute('max', maxday);
+
+            chosen = STUDENTS;
+            enableButtons();
+            document.getElementById("staffForm").style.display = "none";
+            document.getElementById("staffList").style.display = "none";
+            document.getElementById("studentsList").style.display = "block";
+            document.getElementById("filterStudents").style.display = "block";
+            document.getElementById("filterStaff").style.display = "none";
+            const addStudent = (event)=> {
+                event.preventDefault();
+                if(validateDOB()){
+                    let student = {
+                        studentID: document.getElementById('inputStudent_ID').value,
+                        firstname: document.getElementById('firstName').value,
+                        lastname: document.getElementById('lastName').value,
+                        dob: document.getElementById('dob').value,
+                        joiningDate: document.getElementById('joiningDateStudent').value,
+                        semester: document.getElementById('semesterInput').value,
+                        gender: displayRadioValue(),
+                        email: document.getElementById('email').value
+                    }
+                    students.push(student);
+                    document.forms[0].reset();
+                    console.warn('added', {students});
+                    //let pre = document.querySelector('#studentObject pre');
+                    //pre.textContent = '\n' + JSON.stringify(students, '\t', 2);
+                    displayStudents(students);
+                }
+                else{
+                    alert("you have to be between 17 and 65");
+                }
+
+            }
+            document.getElementById("addStudentButton").addEventListener('click', addStudent);
+        }
+        function displayStudents(arr){
+            let list = document.getElementById("studentsList");
+            list.innerHTML = "";
+            arr.forEach((item)=>{
+                let li = document.createElement("li");
+                li.innerText = JSON.stringify(item);
+                list.appendChild(li);
+            })
+        }
+
+        function applyDepartmentFilter(){
+            console.log("apply filter has been called");
+            let filtered = staffs.filter(staff => staff.department === document.getElementById("departmentFilter").value);
+            displayStaffList(filtered);
+        }
+
+        function displayStaffList(arr){
+            let list = document.getElementById("staffList");
+            list.innerHTML = "";
+            arr.forEach((item)=>{
+                let li = document.createElement("li");
+                li.innerText = JSON.stringify(item);
+                list.appendChild(li);
+            })
+        }
+
+        let staffs = [];
+        function openStaff(){
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const maxday = yesterday.toISOString().split('T')[0];
+            document.getElementsByName("dobStaff")[0].setAttribute('max', maxday);
+
+            chosen = STAFF;
+            enableButtons();
+            document.getElementById("studentsForm").style.display = "none";
+            document.getElementById("staffList").style.display = "block";
+            document.getElementById("studentsList").style.display = "none";
+            document.getElementById("filterStudents").style.display = "none";
+            document.getElementById("filterStaff").style.display = "block";
+
+            const addStaff = (event)=> {
+                event.preventDefault();
+                if(validateDOB()){
+                    let staff = {
+                        staffID: document.getElementById('inputStaff_ID').value,
+                        firstname: document.getElementById('firstStaffName').value,
+                        lastname: document.getElementById('lastStaffName').value,
+                        dob: document.getElementById('dob').value,
+                        joiningDate: document.getElementById('joiningDateStaff').value,
+                        department: document.getElementById('departmentInput').value,
+                        gender: displayRadioValue(),
+                        email: document.getElementById('emailStaff').value
+                    }
+                    staffs.push(staff);
+                    document.forms[0].reset();
+                    console.warn('added', {staffs});
+                    let pre = document.querySelector('#staffObject pre');
+                    //pre.textContent = '\n' + JSON.stringify(staffs, '\t', 2);
+                    displayStaffList(staffs);
+                }
+                else{
+                    alert("you need to be between 17 and 65!");
+                }
+
+            }
+            document.getElementById("addStaffButton").addEventListener('click', addStaff);
+        }
+        function addStudentOrStaff(){
+            const targetStudents = document.getElementById("studentsForm");
+            const targetStaff = document.getElementById("staffForm");
+            if(chosen===STAFF){
+                targetStudents.style.display = "none";
+                targetStaff.style.display = "block";
+            }else{
+                targetStudents.style.display = "block";
+                targetStaff.style.display = "none";
+            }
+        }
+        function deleteStudentOrStaff(){
+        }
+        function updateStudentOrStaff(){
+        }
+        function validateDOB(){
+            event.preventDefault();
+            const minDateOfBirth = new Date();
+            const maxDateOfBirth = new Date();
+            minDateOfBirth.setFullYear(minDateOfBirth.getFullYear() - 17);
+            maxDateOfBirth.setFullYear(minDateOfBirth.getFullYear() - 60);
+            let dateOfBirth;
+            if (chosen === STAFF) {
+                dateOfBirth = document.getElementById("dobStaff").valueAsDate;
+            } else {
+                dateOfBirth = document.getElementById("dob").valueAsDate;
+            }
+            if(dateOfBirth.getTime() <= minDateOfBirth.getTime() && dateOfBirth.getTime() >= maxDateOfBirth.getTime()){
+                console.log("valid");
+                return true;
+            }else{
+                console.log("invalid");
+                return false;
+            }
+        }
+
+    </script>
+    <h1 style="text-align: center; padding: 50px; background-color:darkslategray; color:white">Admin Page</h1>
+
+    <div class="grid-container">
+        <div class="grid-item">
+    <div class="btn-group" role="group" style="margin-left: 20px">
+        <button type="button" class="btn btn-primary" onclick="openStudents()">Students</button>
+        <button type="button" class="btn btn-primary" onclick="openStaff()">Staff</button>
+    </div>
+    <ul id="list"></ul>
+    <div class="btn-group" role="group" id="buttons" style="display:none; margin-left: 20px">
+        <button type="button" class="btn btn-secondary" onclick="addStudentOrStaff()">Add</button>
+        <button type="button" class="btn btn-secondary" onclick="deleteStudentOrStaff()">Delete</button>
+        <button type="button" class="btn btn-secondary" onclick="updateStudentOrStaff()">Update</button>
+    </div>
+    <form id="studentsForm" style="display:none" class="card-body">
+        <div class="form-group row">
+            <label for="inputStudent_ID" class="col-sm-2 col-form-label">Student ID</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="inputStudent_ID" placeholder="Student ID">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="firstName" class="col-sm-2 col-form-label">First Name</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="firstName" placeholder="First Name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="lastName" class="col-sm-2 col-form-label">Last Name</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="lastName" placeholder="Last Name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="dob" class="col-sm-2 col-form-label">date of birth</label>
+            <div class="col-sm-10">
+                <input max="" name="dob" style="width:200px" type="date" class="form-control" id="dob" placeholder="date of birth">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="joiningDateStudent" class="col-sm-2 col-form-label">Joining Date</label>
+            <div class="col-sm-10">
+                <input max="" style="width:200px" type="date" class="form-control" id="joiningDateStudent" placeholder="joining Date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="semester" class="col-sm-2 col-form-label">Semester</label>
+            <input id="semesterInput" style="width: 150px" list="semester" name="semester" class="col-sm-2 col-form-label" placeholder="Semester"/></label>
+            <datalist id="semester">
+                <option value="Winter Semester">
+                <option value="Summer Semester">
+            </datalist>
+        </div>
+        <fieldset class="form-group">
+            <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">Gender</legend>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="male" checked>
+                        <label class="form-check-label" for="gridRadios1">
+                            Male
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="female">
+                        <label class="form-check-label" for="gridRadios2">
+                            Female
+                        </label>
+                    </div>
+                    <div class="form-check disabled">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="other">
+                        <label class="form-check-label" for="gridRadios3">
+                            Other
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-group row">
+            <label for="email" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="email" placeholder="Email">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button id="addStudentButton" type="submit" class="btn btn-primary" onclick="validateDOB()">+</button>
+            </div>
+        </div>
+    </form>
+
+    <form id="staffForm" style="display:none" class="card-body">
+        <div class="form-group row">
+            <label for="inputStaff_ID" class="col-sm-2 col-form-label">Staff ID</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="inputStaff_ID" placeholder="Staff ID">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="firstStaffName" class="col-sm-2 col-form-label">First Name</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="firstStaffName" placeholder="First Name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="lastStaffName" class="col-sm-2 col-form-label">Last Name</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="lastStaffName" placeholder="Last Name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="dobStaff" class="col-sm-2 col-form-label">date of birth</label>
+            <div class="col-sm-10">
+                <input name="dobStaff" max="2021-04-04" style="width:200px" type="date" class="form-control" id="dobStaff" placeholder="date of birth">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="joiningDateStaff" class="col-sm-2 col-form-label">Joining Date</label>
+            <div class="col-sm-10">
+                <input max="" style="width:200px" type="date" class="form-control" id="joiningDateStaff" placeholder="joining Date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="department" class="col-sm-2 col-form-label">Department</label>
+            <input id="departmentInput" style="width: 150px" list="department" name="department" class="col-sm-2 col-form-label" placeholder="department"/></label>
+            <datalist id="department">
+                <option value="IT">
+                <option value="Applied Sciences">
+                <option value="Mathematics">
+                <option value="Physics">
+                <option value="Web Development">
+            </datalist>
+        </div>
+        <fieldset class="form-group">
+            <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">Gender</legend>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="radio1" value="male" checked>
+                        <label class="form-check-label" for="gridRadios1">
+                            Male
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="radio2" value="female">
+                        <label class="form-check-label" for="gridRadios2">
+                            Female
+                        </label>
+                    </div>
+                    <div class="form-check disabled">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="radio3" value="other">
+                        <label class="form-check-label" for="gridRadios3">
+                            Other
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-group row">
+            <label for="emailStaff" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+                <input style="width:200px" type="text" class="form-control" id="emailStaff" placeholder="Email">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button id="addStaffButton" type="submit" class="btn btn-primary" onclick="validateDOB()">+</button>
+            </div>
+        </div>
+    </form>
+        </div>
+        <div class="grid-item">
+            <div class="form-group row" id="filterStudents" style="display: none">
+                <input id="semesterFilter" style="width: 150px" list="studentsFilter" name="semester" class="col-sm-2 col-form-label" placeholder="Semester" onchange="applyFilter()"/></label>
+                <datalist id="studentsFilter">
+                    <option value="Winter Semester">
+                    <option value="Summer Semester">
+                </datalist>
+            </div>
+            <div class="form-group row" id="filterStaff" style="display: none">
+                <input onchange="applyDepartmentFilter()" id="departmentFilter" style="width: 150px" list="staffFilter" name="dep" class="col-sm-2 col-form-label" placeholder="Department"/></label>
+                <datalist id="staffFilter">
+                    <option value="IT">
+                    <option value="Applied Sciences">
+                    <option value="Mathematics">
+                    <option value="Physics">
+                    <option value="Web Development">
+                </datalist>
+            </div>
+
+            <ul id="studentsList" style="display:none">
+                <li>Students</li>
+                <div id="studentObject">
+                    <pre></pre>
+                </div>
+            </ul>
+            <ul id="staffList" style="display:none">
+                <li>Staff Members</li>
+                <div id="staffObject">
+                    <pre></pre>
+                </div>
+            </ul>
+
+        </div>
+    </div>
+
 </body>
 </html>
